@@ -3,13 +3,15 @@ import random
 from pygame.locals import RLEACCEL
 
 from screen import Screen
+from game_sprite import GameSprite
+
 
 
 # Define the cloud object extending pygame.sprite.Sprite
 # Use an image for a better looking sprite
-class Cloud(pygame.sprite.Sprite):
+class Cloud(GameSprite):
     def __init__(self):
-        super(Cloud, self).__init__()
+        super().__init__()
         self.surf = pygame.image.load("icons/cloud.png").convert()
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         # The starting position is randomly generated
@@ -26,3 +28,6 @@ class Cloud(pygame.sprite.Sprite):
         self.rect.move_ip(-5, 0)
         if self.rect.right < 0:
             self.kill()
+
+    def clone(self):
+        return Cloud()

@@ -4,16 +4,17 @@ import math
 from pygame.locals import RLEACCEL
 
 from screen import Screen
+from game_sprite import GameSprite
 
 
 # Define the enemy object extending pygame.sprite.Sprite
 # Instead of a surface, we use an image for a better looking sprite
-class Bird(pygame.sprite.Sprite):
+class Bird(GameSprite):
     Max_Speed = 10
     Min_Speed = 5
 
     def __init__(self):
-        super(Bird, self).__init__()
+        super().__init__()
         self.surf = pygame.image.load("icons/bird.png").convert()
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         # The starting position is randomly generated, as is the speed
@@ -36,3 +37,6 @@ class Bird(pygame.sprite.Sprite):
         self.rect.move_ip(speed_x, speed_y)
         if self.rect.right < 0:
             self.kill()
+
+    def clone(self):
+        return Bird()
