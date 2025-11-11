@@ -1,10 +1,8 @@
 import pygame
 import random
 from pygame.locals import RLEACCEL
-
 from screen import Screen
 from game_sprite import GameSprite
-
 
 
 # Define the cloud object extending pygame.sprite.Sprite

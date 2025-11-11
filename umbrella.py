@@ -17,10 +17,10 @@ class Umbrella(GameSprite):
         self.rect = self.surf.get_rect(
             center=(random.randint(0, Screen.width), -20)
         )
-        self.speed_y = random.randint(self.Min_Speed_y, self.Max_Speed_y)
+        self._speed_y = random.randint(self.Min_Speed_y, self.Max_Speed_y)
 
     def update(self):
-        self.rect.move_ip(0, self.speed_y) # nomes es mou verticalment
+        self.rect.move_ip(0, self._speed_y) # nomes es mou verticalment
         if self.rect.top > Screen.height:
             self.kill()
 

@@ -7,7 +7,7 @@ from pygame.locals import (
     KEYDOWN,
     QUIT,
 )
-
+from factory_sprites import FactorySprites
 from screen import Screen
 from player import Player
 from bird import Bird
@@ -15,11 +15,14 @@ from cloud import Cloud
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, factory_flying, factory_landscape):
         self._initialize_game()
         self._make_objects()
         self._load_music_and_sounds()
         self._play_music()
+        self._factory_flying = factory_flying
+        self._factory_landscape = factory_landscape
+
 
     def _initialize_game(self):
         # Setup the clock for a decent frame rate
@@ -31,10 +34,14 @@ class Game:
         new_cloud_period = 500
         # make a new bird/cloud every these milliseconds, so the smaller
         # the more new birds/clouds
-        self._add_bird_event_type = pygame.USEREVENT + 1
-        pygame.time.set_timer(self._add_bird_event_type, new_bird_period)
-        self._add_cloud_event_type = pygame.USEREVENT + 2
-        pygame.time.set_timer(self._add_cloud_event_type, new_cloud_period)
+
+        # Ho fa el factory sprites:
+
+        #self._add_bird_event_type = pygame.USEREVENT + 1
+        #pygame.time.set_timer(self._add_bird_event_type, new_bird_period)
+        #self._add_cloud_event_type = pygame.USEREVENT + 2
+        #pygame.time.set_timer(self._add_cloud_event_type, new_cloud_period)
+
         self._user_quits = False  # to quit press Escape or close the window
 
     def _make_objects(self):
@@ -45,8 +52,8 @@ class Game:
         # - birds is used for collision detection and position updates
         # - clouds is used for position updates
         # - all_sprites is used for rendering
-        self._birds = pygame.sprite.Group()
-        self._clouds = pygame.sprite.Group()
+        self._flying_sprites = pygame.sprite.Group()
+        self._landscape_sprites = pygame.sprite.Group()
         self._all_sprites = pygame.sprite.Group()
         self._all_sprites.add(self._player)
 
@@ -62,29 +69,22 @@ class Game:
         self._collision_sound.set_volume(0.5)
 
     def _process_event(self):
-        # Look at every event in the queue
         for event in pygame.event.get():
-            print('event type = {}'.format(event.type))
-            # Did the user hit a key?
-            if event.type == KEYDOWN:
-                # Was it the Escape key? If so, stop the loop
-                if event.key == K_ESCAPE:
-                    self._user_quits = True
-            # Did the user click the window close button? If so, stop the loop
-            elif event.type == QUIT:
-                self._user_quits = True
-            # Should we add a new bird?
-            elif event.type == self._add_bird_event_type:
-                # Create the new bird, and add it to our sprite groups
-                new_bird = Bird()
-                self._birds.add(new_bird)
-                self._all_sprites.add(new_bird)
-            # Should we add a new cloud?
-            elif event.type == self._add_cloud_event_type:
-                # Create the new cloud, and add it to our sprite groups
-                new_cloud = Cloud()
-                self._clouds.add(new_cloud)
-                self._all_sprites.add(new_cloud)
+            #:
+            if event.type in self._factory_flying._event_types:
+                # Create the new flying object, and add it to
+                # our sprite groups
+                new_flying = self._factory_flying.make(event.type) # va a hacer clone del objeto
+                self._flying_sprites.add(new_flying)
+                self._all_sprites.add(new_flying)
+                # Should we add a new landscape object?
+            elif event.type in self._factory_landscape._event_types:
+                # Create the new landscape object, and add it to
+                # our sprite groups
+                new_landscape = self._factory_landscape.make(event.type)
+                self._landscape_sprites.add(new_landscape)
+                self._all_sprites.add(new_landscape)
+
 
     def _update(self):
         # Get the set of keys pressed and check for user input
@@ -92,20 +92,22 @@ class Game:
         self._player.update(pressed_keys)
         # move the player if key was an arrow
         # Update the position of our birds and clouds
-        self._birds.update()
-        self._clouds.update()
 
+        self._player.update(pressed_keys)
+        self._flying_sprites.update()
+        self._landscape_sprites.update()
     def _draw(self):
-        # Fill the screen.py with sky blue
+    # Fill the screen with sky blue
         self._screen.fill((135, 206, 250))
-        # Draw all our sprites
+
+        # Draw all sprites
         for entity in self._all_sprites:
             self._screen.blit(entity.surf, entity.rect)
-        # Flip everything to the display
+
         pygame.display.flip()
 
     def _collision(self):
-        return pygame.sprite.spritecollideany(self._player, self._birds)
+        return pygame.sprite.spritecollideany(self._player, self._flying_sprites)
 
     def _game_over(self):
         return self._collision() or self._user_quits
