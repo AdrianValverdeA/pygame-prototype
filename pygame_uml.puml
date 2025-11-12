@@ -1,0 +1,104 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package pygame {
+    class Sprite {
+        +update()
+    }
+
+    class Clock
+    class Sound
+}
+
+class Game {
+    -clock : Clock
+    -screen : Surface
+    -user_quits : boolean
+    +Game(factoryFlying : FactorySprites, factoryLandscape : FactorySprites)
+    +play()
+}
+
+class Missile {
+    + {static} Min_Speed : int
+    + {static} Max_Speed : int
+    -time : int
+    -speed : int
+    +update()
+    +clone() : Missile
+}
+
+class Jet {
+    + {static} Min_Speed : int
+    + {static} Max_Speed : int
+    -time : int
+    -speed : int
+    +update()
+    +clone() : Jet
+}
+
+class Sprite {
+    }
+
+class FactorySprites {
+    -periods : int[]
+    -eventTypes : int[]
+    +make() : GameSprite
+}
+
+class GameSprite {
+    +clone() : GameSprite
+}
+
+class Player {
+    -moveUpSound : Sound
+    -moveDownSound : Sound
+    +update(pressedKeys : boolean[])
+    +stopMoveSounds()
+}
+
+class Bird {
+    + {static} Min_Speed : int
+    + {static} Max_Speed : int
+    -time : int
+    -speed : int
+    +update()
+    +clone() : Bird
+}
+
+class Umbrella {
+    + {static} Min_Speed_y : int
+    + {static} Max_Speed_y : int
+    -speed_y : int
+    +update()
+    +clone() : Umbrella
+}
+
+class Cloud {
+    +update()
+    +clone() : Cloud
+}
+
+class Mountain {
+    +update()
+    +clone() : Mountain
+}
+
+' Relaciones
+Game --> FactorySprites : factoryFlying
+Game --> FactorySprites : factoryLandscape
+Game --> "1..*" Sprite : all_sprites
+Game --> "*" GameSprite : flyingSprites
+Game --> "*" GameSprite : landscapeSprites
+
+FactorySprites o-> "1..*" GameSprite : prototypes
+GameSprite <|-- Bird
+GameSprite <|-- Umbrella
+GameSprite <|-- Cloud
+GameSprite <|-- Mountain
+GameSprite <|-- Jet
+GameSprite <|-- Missile
+
+Sprite <|-- Player
+Sprite <|-- GameSprite
+
+@enduml
